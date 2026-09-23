@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>水下考古连续潜次放行台</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, "PingFang SC", sans-serif; background: #e8f2f3; color: #183035; }
+    header { padding: 18px 24px; background: #fff; border-bottom: 1px solid #c9dadc; display: flex; justify-content: space-between; gap: 16px; align-items: center; }
+    h1 { margin: 0; font-size: 24px; }
+    h2 { font-size: 17px; margin: 14px 0 8px; }
+    button { border: 0; border-radius: 8px; padding: 10px 13px; background: #1d6c78; color: #fff; font-weight: 800; cursor: pointer; }
+    button.secondary { background: #64777b; }
+    button:disabled { opacity: .6; cursor: default; }
+    input, select { width: 100%; border: 1px solid #c9dadc; border-radius: 6px; padding: 9px; font: inherit; background: #fff; }
+    label { display: block; margin: 9px 0 5px; color: #5c7378; font-size: 13px; }
+    .app { display: grid; grid-template-columns: 1fr 380px; gap: 16px; padding: 16px; }
+    .panel { background: #fff; border: 1px solid #c9dadc; border-radius: 8px; padding: 14px; }
+    .list { display: grid; gap: 8px; max-height: 300px; overflow: auto; }
+    .item { border: 1px solid #d7e4e5; border-left-width: 5px; border-radius: 8px; padding: 10px; }
+    #queue .item { cursor: pointer; }
+    .item.released { border-left-color: #2e7d4f; }
+    .item.pending { border-left-color: #b08a00; }
+    .item.blocked { border-left-color: #b23b3b; }
+    .pill { display: inline-block; padding: 3px 8px; border: 1px solid #c9dadc; border-radius: 999px; font-size: 12px; }
+    .pill.released, .pill.active { background: #e3f3e9; color: #2e7d4f; border-color: #bfe0cd; }
+    .pill.pending, .pill.held { background: #faf3d9; color: #8a6d00; border-color: #eadfae; }
+    .pill.blocked, .pill.unlinked { background: #f8e3e3; color: #b23b3b; border-color: #ecc5c5; }
+    .verdict { margin-top: 4px; font-size: 13px; font-weight: 700; }
+    .muted { color: #5c7378; font-size: 13px; }
+    .toolbar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+    #flash { min-height: 18px; margin-top: 8px; color: #1d6c78; font-weight: 700; }
+    form { border-bottom: 1px dashed #d7e4e5; padding-bottom: 10px; margin-bottom: 10px; }
+    @media (max-width: 980px) { header { display: block; } .app { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>水下考古连续潜次放行台</h1>
+      <div class="muted">相邻潜次间隔不足一小时不得开始后一潜；可下水余量按前一潜深度与时长折减三成；前一潜未登记出水时刻，后一潜只留待复核。</div>
+    </div>
+    <button id="exportBtn">导出JSON</button>
+  </header>
+  <main class="app">
+    <section class="panel">
+      <h2>放行队列</h2>
+      <div id="queue" class="list"></div>
+      <h2>潜次时间线 <span class="muted" id="timelineNote"></span></h2>
+      <div id="timeline" class="list"></div>
+    </section>
+    <aside class="panel">
+      <form id="diveForm">
+        <h2 id="diveFormTitle">登记潜次</h2>
+        <input name="id" type="hidden">
+        <label>潜次编号</label><input name="code" required placeholder="例如 DIVE-05">
+        <label>入水时刻</label><input name="entry" type="datetime-local">
+        <label>出水时刻（未出水可留空，后补走修订）</label><input name="exit" type="datetime-local">
+        <label>深度（米）</label><input name="depth" type="number" step="0.1" min="0" required>
+        <label>计划时长（分钟）</label><input name="planMinutes" type="number" min="1" placeholder="留空则按出入水时刻计">
+        <div class="toolbar">
+          <button type="submit" id="diveSubmit">提交登记</button>
+          <button type="button" id="newDiveBtn" class="secondary">新建</button>
+        </div>
+        <div id="flash"></div>
+      </form>
+      <form id="markForm">
+        <h2>关联标记</h2>
+        <label>编号</label><input name="code" required placeholder="例如 A-021">
+        <label>类型</label>
+        <select name="type"><option value="ceramic">陶片</option><option value="wood">木构件</option><option value="metal">金属件</option><option value="unknown">未知物</option></select>
+        <label>所属潜次</label><select name="diveId" required></select>
+        <label>备注</label><input name="note" placeholder="可留空">
+        <div class="toolbar"><button type="submit">添加标记</button></div>
+      </form>
+      <h2>标记清单</h2>
+      <div id="marks" class="list"></div>
+      <div class="muted" id="archiveNote"></div>
+    </aside>
+  </main>
+  <script src="rules.js"></script>
+  <script src="records.js"></script>
+  <script src="page.js"></script>
+</body>
+</html>
