@@ -1,0 +1,10 @@
+{
+  "name": "uw-arch-dive-station",
+  "version": "1.0.0",
+  "description": "水下考古连续潜次放行台：规则、记录、页面三个业务文件",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "node --test"
+  }
+}
